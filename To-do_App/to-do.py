@@ -1,59 +1,71 @@
-tasks = []
+import tkinter as tk
+from tkinter import messagebox
+
+tasks = {}
 
 def load_tasks():
     try:
         with open("tasks.txt", "r") as file:
             for line in file:
-                tasks.append(line.strip())
+                task, status = line.strip().split("|")
+                tasks[task] = status
     except FileNotFoundError:
-        pass  # File will be created later
-
+        pass
 def save_tasks():
     with open("tasks.txt", "w") as file:
-        for task in tasks:
-            file.write(task + "\n")
+        for task, status in tasks.items():
+            file.write(f"{task}|{status}\n")
 
-tasks = []
-def show_menu():
-    print("\n        TO-DO LIST      ")
-    print("1. Add Task")
-    print("2. View Task")
-    print("3. Delete Task")
-    print("4. Exit")
-
-while True:
-    show_menu()
-    choice = input("Enter your choise: ")
-    
-    if choice == "1":
-        task = input("Enter task: ")
-        tasks.append(task)
+def add_task():
+    task = entry.get()
+    if task == "":
+        messagebox.showwarning("Warning","Task cannot be empty!")
+    else:
+        tasks[tasks] = "Pending"
         save_tasks()
-        print("Task added")
+        entry.delete(0, tk.END)
+        update_listbox()
 
-    elif choice == "2":
-        if not tasks:
-            print("No tasks present")
-        else:
-         print("\n Your Tasks: ")
-         for i, task in enumerate(tasks, start=1):
-            print(f"{i}. {task}")
+def mark_done():
+    try:
+        selected = listbox.curselection()[0]
+        task = list(tasks.keys())[selected]
+        tasks[task] = "Done"
+        save_tasks()
+        update_listbox()
+    except:
+        messagebox.showwarning("Warning","Select a task!")
 
-        
-    elif choice == "3":
-        if not tasks:
-            print("No tasks to delete")
-        else:
-            num = int(input("Enter the task number to be deleted: "))
-            if 1 <= num <= len(tasks):
-             tasks.pop(num - 1)
-             print("Task deleted")
-            else:
-                print("Invalid task number!")
+def delete_task():
+    try:
+        selected = listbox.curselection()[0]
+        task = list(tasks.keys())[selected]
+        del tasks[task]
+        save_listbox()
+    except:
+        messagebox.showwarning("Warning","Select a task")
 
-    elif choice == "4":
-        print("Exiting")
-        break
+def update_listbox():
+    listbox.delete(0, tk.END)
+    for task, status in tasks.items():
+        listbox.insert(tk.END, f"{task}[{status}"]")
 
-else:
-    print("Invalid choice")
+root = tk.Tk()
+root.title("To-Do List")
+root.geometry("400*400")
+
+entry = tk.Entry(root, width=30)
+entry.pack(pady=10)
+
+tk.Button(root, text="Add Task", command=add_task)
+
+listbox = tk.Listbox(root, width=40, height=10)
+listbox.pack(pady=10)
+
+tk.Button(root, text="Marks as Done", command=marks_done).pack(pady=5)
+tk.Button(root, text="Delete Task", command=delete_done).pack()
+
+load_tasks()
+update_listbox()
+root.mainloop()
+
