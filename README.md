@@ -1,4 +1,4 @@
-# To-Do List Application
+# To-Do List code basic level
 
 A complete To-Do List application built step-by-step using Python.
 
